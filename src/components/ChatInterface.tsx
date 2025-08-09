@@ -131,95 +131,94 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
       }));
   };
 
-  const sendMessage = async (messageContent?: string) => {
-    const content = messageContent || input.trim();
-    if (!content) return;
+  const sendMessage = async () => {
+  if (!input.trim() || isLoading) return;
+  
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    role: 'user',
+    content: input.trim(),
+    timestamp: new Date()
+  };
 
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: content,
-      timestamp: new Date()
-    };
+  const generatingMessage: Message = {
+    id: (Date.now() + 1).toString(),
+    role: 'assistant',
+    content: '',
+    timestamp: new Date(),
+    isGenerating: true
+  };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-    setIsFirstLoad(false);
-    
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+  setMessages(prev => [...prev, userMessage, generatingMessage]);
+  setInput('');
+  setIsLoading(true);
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: [...getChatHistory(), { role: 'user', content: userMessage.content }],
+        temperature: 0.4,
+        max_tokens: 4096,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // Add generating message
-    const generatingMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isGenerating: true
-    };
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let accumulatedContent = '';
 
-    setMessages(prev => [...prev, generatingMessage]);
-
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages: [...getChatHistory(), { role: 'user', content: content }],
-          temperature: 0.4,
-          max_tokens: 4096,
-          stream: true
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedContent = '';
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
-
-              try {
-                const parsed = JSON.parse(data);
-                const content = parsed.choices?.[0]?.delta?.content || '';
-                if (content) {
-                  accumulatedContent += content;
-                  setMessages(prev => 
-                    prev.map(msg => 
-                      msg.id === generatingMessage.id 
-                        ? { ...msg, content: accumulatedContent }
-                        : msg
-                    )
-                  );
-                }
-              } catch (e) {
-                // Ignore parsing errors for incomplete chunks
-              }
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const jsonString = line.slice(6);
+            if (jsonString === '[DONE]') continue;
+            
+            try {
+              const jsonData = JSON.parse(jsonString);
+              const content = jsonData.choices[0]?.delta?.content || '';
+              accumulatedContent += content;
+              
+              setMessages(prev => prev.map(msg => 
+                msg.id === generatingMessage.id 
+                  ? { ...msg, content: accumulatedContent }
+                  : msg
+              ));
+            } catch (e) {
+              console.error('Error parsing JSON:', e);
             }
           }
         }
       }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    // Handle error state
+  } finally {
+    setIsLoading(false);
+    setMessages(prev => prev.map(msg => 
+      msg.id === generatingMessage.id 
+        ? { ...msg, isGenerating: false }
+        : msg
+    ));
+  }
+};
 
       // Finalize the message
       setMessages(prev => 
