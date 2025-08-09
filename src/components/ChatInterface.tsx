@@ -580,8 +580,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
             </button>
             
             <div className={`absolute bottom-full left-0 mb-1 w-full origin-bottom rounded-lg shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ${
-              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-            }`}>
+      isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+    }`}>
               {MODELS.map(model => (
                 <div 
                   key={model.id}
@@ -636,16 +636,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
             />
 
             <button
-              onClick={() => sendMessage()}
-              disabled={!input.trim() || isLoading}
-              className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isDarkMode 
-                  ? 'hover:bg-gray-800 text-white' 
-                  : 'hover:bg-gray-600 text-gray-800'
-              }`}
-            >
-              <Send className="w-5 h-5" />
-            </button>
+      onClick={() => sendMessage()}
+      disabled={!input.trim() || isLoading}
+      className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+        isDarkMode 
+          ? 'hover:bg-gray-800 text-white' 
+          : 'hover:bg-gray-600 text-gray-800'
+      }`}
+    >
+      <Send className="w-5 h-5" />
+    </button>
           </div>
         </div>
       </div>
