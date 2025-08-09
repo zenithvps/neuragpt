@@ -36,6 +36,8 @@ const MODELS = [
   }
 ];
 
+const API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+
 const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
