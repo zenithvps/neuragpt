@@ -36,8 +36,6 @@ const MODELS = [
   }
 ];
 
-const API_KEY = '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';
-
 const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
