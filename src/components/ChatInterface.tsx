@@ -131,94 +131,109 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
       }));
   };
 
-  const sendMessage = async () => {
-  if (!input.trim() || isLoading) return;
-  
-  const userMessage: Message = {
-    id: Date.now().toString(),
-    role: 'user',
-    content: input.trim(),
-    timestamp: new Date()
-  };
+ const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+    
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim(),
+      timestamp: new Date()
+    };
 
-  const generatingMessage: Message = {
-    id: (Date.now() + 1).toString(),
-    role: 'assistant',
-    content: '',
-    timestamp: new Date(),
-    isGenerating: true
-  };
+    const generatingMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isGenerating: true
+    };
 
-  setMessages(prev => [...prev, userMessage, generatingMessage]);
-  setInput('');
-  setIsLoading(true);
+    setMessages(prev => [...prev, userMessage, generatingMessage]);
+    setInput('');
+    setIsLoading(true);
 
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: [...getChatHistory(), { role: 'user', content: userMessage.content }],
-        temperature: 0.4,
-        max_tokens: 4096,
-        stream: true
-      })
-    });
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          messages: [...getChatHistory(), { role: 'user', content: userMessage.content }],
+          temperature: 0.4,
+          max_tokens: 4096,
+          stream: true
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    let accumulatedContent = '';
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
 
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-        
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonString = line.slice(6);
-            if (jsonString === '[DONE]') continue;
-            
-            try {
-              const jsonData = JSON.parse(jsonString);
-              const content = jsonData.choices[0]?.delta?.content || '';
-              accumulatedContent += content;
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonString = line.slice(6);
+              if (jsonString === '[DONE]') continue;
               
-              setMessages(prev => prev.map(msg => 
-                msg.id === generatingMessage.id 
-                  ? { ...msg, content: accumulatedContent }
-                  : msg
-              ));
-            } catch (e) {
-              console.error('Error parsing JSON:', e);
+              try {
+                const jsonData = JSON.parse(jsonString);
+                const content = jsonData.choices[0]?.delta?.content || '';
+                accumulatedContent += content;
+                
+                setMessages(prev => prev.map(msg => 
+                  msg.id === generatingMessage.id 
+                    ? { ...msg, content: accumulatedContent }
+                    : msg
+                ));
+              } catch (e) {
+                console.error('Error parsing JSON:', e);
+              }
             }
           }
         }
       }
+
+      // Finalize the message
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === generatingMessage.id 
+            ? { ...msg, isGenerating: false }
+            : msg
+        )
+      );
+
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => 
+        prev.filter(msg => msg.id !== generatingMessage.id)
+      );
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content: '**Error**: Sorry, I encountered an error. Please try again.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Error:', error);
-    // Handle error state
-  } finally {
-    setIsLoading(false);
-    setMessages(prev => prev.map(msg => 
-      msg.id === generatingMessage.id 
-        ? { ...msg, isGenerating: false }
-        : msg
-    ));
-  }
-};
+  };
 
       // Finalize the message
       setMessages(prev => 
