@@ -84,17 +84,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
     );
   };
 
-  const createNewMessage = () => {
-    setMessages([{
-      id: 'welcome',
-      role: 'assistant',
-      content: "# Welcome to AI Assistant! 👋\n\nI'm here to help you with:\n- **Answering questions** on any topic\n- **Writing and editing** content\n- **Problem solving** and analysis\n- **Code assistance** and debugging\n- **Creative tasks** and brainstorming\n\nFeel free to ask me anything! How can I assist you today?",
-      timestamp: new Date()
-    }]);
-    setIsFirstLoad(true);
-    setInput('');
-  };
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ 
       behavior: 'smooth',
@@ -131,15 +120,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
       }));
   };
 
- const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-    
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date()
-    };
+ const sendMessage = async (content?: string) => {
+  if ((!input.trim() && !content) || isLoading) return;
+  
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    role: 'user',
+    content: content || input.trim(),
+    timestamp: new Date()
+  };
 
     const generatingMessage: Message = {
       id: (Date.now() + 1).toString(),
