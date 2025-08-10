@@ -36,7 +36,7 @@ const MODELS = [
   }
 ];
 
-const API_KEY = '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';
+const API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
 
 const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -167,7 +167,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${API_KEY}`,
+           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
