@@ -36,7 +36,7 @@ const MODELS = [
   }
 ];
 
-const API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+const API_KEY = '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';
 
 const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
