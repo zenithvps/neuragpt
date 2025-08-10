@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Copy, RotateCcw, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { ArrowUp, Copy, RotateCcw, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -19,7 +19,7 @@ const MODELS = [
   { 
     id: 'openai/gpt-oss-20b:free', 
     name: 'Super Neura',
-    description: 'Fast response and efficient for general and daily tasks',
+    description: 'Super fast response and super detail information',
     color: 'bg-blue-600'
   },
   { 
@@ -33,6 +33,12 @@ const MODELS = [
     name: 'Neura Thinking',
     description: 'Advanced searching and thinking Model',
     color: 'bg-yellow-500'
+  },
+  { 
+    id: 'deepseek/deepseek-r1-0528:free', 
+    name: 'Neura Lite',
+    description: 'Very efficient model for general and daily tasks.',
+    color: 'bg-lime-500'
   }
 ];
 
@@ -46,8 +52,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false); // State baru untuk dropdown model
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const modelDropdownRef = useRef<HTMLDivElement>(null); // Ref untuk dropdown model
 
   // Detect system color scheme
   useEffect(() => {
@@ -67,32 +75,57 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
     };
   }, []);
 
+  // Close model dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
+        setIsModelDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const WelcomeArea = () => {
-    return (
-      <div className="flex flex-col items-center justify-center h-full py-12 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-5xl font-bold bg-blue-500 bg-clip-text text-transparent">
-            Hello, I'm Neura
-          </h1>
-          <div className={`p-4 rounded-lg`}>
-            <p className="text-xl font-semibold">
-              Ask me anything
-            </p>
+  return (
+    <div className="flex flex-col items-center justify-center h-full py-12 px-4 text-center">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-5xl font-bold bg-blue-500 bg-clip-text text-transparent">
+          Hello, I'm Neura
+        </h1>
+        <div className={`p-4 rounded-lg`}>
+          <p className="text-xl font-semibold">
+            Ask me anything
+          </p>
+          {/* Tambahkan placeholder di sini */}
+          <div className={`mt-8 text-sm ${
+            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>
+            Type your message below to start chatting with {MODELS.find(m => m.id === selectedModel)?.name}...
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   const createNewMessage = () => {
-    setMessages([{
-      id: 'welcome',
-      role: 'assistant',
-      content: "# Welcome to AI Assistant! 👋\n\nI'm here to help you with:\n- **Answering questions** on any topic\n- **Writing and editing** content\n- **Problem solving** and analysis\n- **Code assistance** and debugging\n- **Creative tasks** and brainstorming\n\nFeel free to ask me anything! How can I assist you today?",
-      timestamp: new Date()
-    }]);
-    setIsFirstLoad(true);
+    setMessages([]);       
+    setIsFirstLoad(true);  
     setInput('');
+  };
+
+  const TypingDots: React.FC = () => {
+    return (
+      <span className="inline-flex items-center ml-1">
+        <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+        <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150 ml-1"></span>
+        <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-300 ml-1"></span>
+      </span>
+    );
   };
 
   const scrollToBottom = () => {
@@ -102,7 +135,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
     });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -205,9 +238,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
                 const content = parsed.choices?.[0]?.delta?.content || '';
                 if (content) {
                   accumulatedContent += content;
-                  setMessages(prev => 
-                    prev.map(msg => 
-                      msg.id === generatingMessage.id 
+                  setMessages(prev =>
+                    prev.map(msg =>
+                      msg.id === generatingMessage.id
                         ? { ...msg, content: accumulatedContent }
                         : msg
                     )
@@ -422,11 +455,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
         >
           {content}
         </ReactMarkdown>
-        {isGenerating && (
-          <span className={`inline-block w-2 h-5 animate-pulse ml-1 ${
-            isDarkMode ? 'bg-gray-400' : 'bg-gray-600'
-          }`} />
-        )}
+        {isGenerating && <TypingDots />}
       </div>
     );
   };
@@ -543,78 +572,78 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Model Selection (Moved to bottom) */}
-      <div className={`px-4 py-2 transition-colors duration-300 ${
-        isDarkMode ? '' : 'bg-white'
+      {/* Input Area */}
+      <div className={`border-t px-4 py-6 transition-colors duration-300 ${
+        isDarkMode ? 'border-gray-900' : 'border-gray-50'
       }`}>
         <div className="max-w-4xl mx-auto">
-          <div className="relative group w-full">
-            <button
-              className={`flex items-center justify-between w-full px-4 py-2 rounded-xl border text-l font-bold transition-colors duration-300 focus:outline-none ${
-                isDarkMode 
-                  ? 'text-white' 
-                  : 'bg-white text-gray-900 hover:bg-gray-200'
-              }`}
-            >
-              <div className="flex items-center gap-2">
+          {/* Kotak Input dibungkus rapi */}
+          <div className={`flex items-center gap-3 rounded-full border px-4 py-2 transition-colors duration-300 ${
+            isDarkMode ? 'bg-[rgb(17_18_20)] border-gray-800' : 'bg-white border-gray-200'
+          }`}>
+            {/* Model Selection Button */}
+            <div className="relative" ref={modelDropdownRef}>
+              <button
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                className={`flex items-center gap-2 p-3 rounded-full transition-colors duration-300 focus:outline-none ${
+                  isDarkMode 
+                    ? 'hover:bg-gray-700 text-gray-300' 
+                    : 'hover:bg-gray-100 text-gray-600'
+                }`}
+                title="Select Model"
+              >
                 <div className={`w-3 h-3 rounded-full ${MODELS.find(m => m.id === selectedModel)?.color}`}></div>
-                {MODELS.find(m => m.id === selectedModel)?.name}
-              </div>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            
-            <div className={`absolute bottom-full left-0 mb-1 w-full origin-bottom rounded-lg shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ${
-              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-            }`}>
-              {MODELS.map(model => (
-                <div 
-                  key={model.id}
-                  onClick={() => setSelectedModel(model.id)}
-                  className={`px-4 py-3 cursor-pointer transition-colors duration-200 ${
-                    selectedModel === model.id 
-                      ? isDarkMode 
-                        ? 'bg-gray-700' 
-                        : 'bg-gray-100' 
-                      : isDarkMode 
-                        ? 'hover:bg-gray-700' 
-                        : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${model.color}`}></div>
-                    <div>
-                      <div className="font-medium">{model.name}</div>
-                      <div className={`text-xs mt-1 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                      }`}>
-                        {model.description}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {/* Model Dropdown */}
+              {isModelDropdownOpen && (
+                <div className={`absolute bottom-full left-0 mb-5 w-60 origin-bottom rounded-xl shadow-lg py-1 z-20 ${
+                  isDarkMode ? 'bg-[rgb(17_18_20)] border border-gray-800' : 'bg-gray-100 border border-gray-200'
+                }`}>
+                  {MODELS.map(model => (
+                    <div 
+                      key={model.id}
+                      onClick={() => {
+                        setSelectedModel(model.id);
+                        setIsModelDropdownOpen(false);
+                      }}
+                      className={`px-4 py-3 cursor-pointer transition-colors duration-200 ${
+                        selectedModel === model.id 
+                          ? isDarkMode 
+                            ? 'bg-gray-900' 
+                            : 'bg-gray-200' 
+                          : isDarkMode 
+                            ? 'hover:bg-gray-900' 
+                            : 'hover:bg-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${model.color}`}></div>
+                        <div>
+                          <div className="font-medium">{model.name}</div>
+                          <div className={`text-xs mt-1 ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                          }`}>
+                            {model.description}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Input Area */}
-      <div className={`border-t px-4 py-4 transition-colors duration-300 ${
-        isDarkMode ? 'bg-[rgb(15_15_15)] border-gray-900' : 'bg-white border-gray-50'
-      }`}>
-        <div className="max-w-4xl mx-auto">
-          <div className={`flex items-end gap-3 rounded-xl p-3 transition-colors duration-300 ${
-            isDarkMode ? 'bg-[rgb(17_18_20)] border-gray-900' : 'bg-gray-100'
-          }`}>
             <textarea
               ref={textareaRef}
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything"
-              className={`flex-1 border-none outline-none resize-none min-h-[30px] max-h-[120px] py-1 bg-transparent transition-colors duration-300 ${
+              placeholder={`Ask anything to ${MODELS.find(m => m.id === selectedModel)?.name}...`}
+              className={`flex-1 border-none outline-none resize-none bg-transparent text-base leading-tight py-1 ${
                 isDarkMode ? 'text-white placeholder-gray-500' : 'text-gray-800 placeholder-gray-400'
               }`}
               rows={1}
@@ -624,13 +653,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
             <button
               onClick={() => sendMessage()}
               disabled={!input.trim() || isLoading}
-              className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isDarkMode 
-                  ? 'hover:bg-gray-800 text-white' 
-                  : 'hover:bg-gray-600 text-gray-800'
-              }`}
+              className={`p-2 rounded-full ${
+                isDarkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-600 hover:bg-blue-500'
+              } text-white`}
             >
-              <Send className="w-5 h-5" />
+              <ArrowUp className="w-5 h-5" />
             </button>
           </div>
         </div>
