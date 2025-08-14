@@ -29,15 +29,15 @@ const MODELS = [
     color: 'bg-cyan-500',
   },
   { 
-    id: 'deepseek/deepseek-chat-v3-0324:free', 
-    name: 'Neura Thinking',
-    description: 'Advanced searching and thinking Model',
-    color: 'bg-yellow-500',
+    id: 'z-ai/glm-4.5-air:free', 
+    name: 'Neura Air',
+    description: 'Very efficient model for general and daily tasks.',
+    color: 'bg-emerald-500',
   },
   { 
-    id: 'deepseek/deepseek-r1-0528:free', 
-    name: 'Neura Lite',
-    description: 'Very efficient model for general and daily tasks.',
+    id: 'qwen/qwen3-235b-a22b:free', 
+    name: 'Neura Thinking',
+    description: 'Advanced searching and thinking for complex reasoning',
     color: 'bg-lime-500',
   }
 ];
@@ -90,52 +90,52 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   }, []);
 
   const WelcomeArea = () => {
-    return (
-      <div className="flex flex-col items-center justify-center h-full py-12 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent mb-4">
-              Hello, I'm Neura
-            </h1>
-          </div>
-          <div className="p-6 rounded-2xl backdrop-blur-sm border border-opacity-20 border-gray-300">
-            <p className="text-xl font-semibold mb-4">
-              Ask me anything
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {MODELS.map((model) => (
-                <div 
-                  key={model.id}
-                  onClick={() => setSelectedModel(model.id)}
-                  className={`p-3 rounded-xl cursor-pointer transition-all duration-300 border ${
-                    selectedModel === model.id 
-                      ? isDarkMode 
-                        ? 'border-blue-500 shadow-lg shadow-blue-500/20' 
-                        : 'bg-blue-50 border-blue-500 shadow-lg shadow-blue-500/20'
-                      : isDarkMode 
-                        ? 'border-gray-700 hover:border-gray-600' 
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-sm">{model.name}</span>
-                  </div>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {model.description}
-                  </p>
+  return (
+    <div className="flex flex-col items-center justify-center h-full py-12 px-4 text-center">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent mb-4">
+            Hello, I'm Neura
+          </h1>
+        </div>
+        <div className="p-1 rounded-2xl backdrop-blur-sm border-gray-300">
+          <p className="text-xl font-semibold mb-4">
+            Ask me anything, I'm here to help
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            {MODELS.map((model) => (
+              <div 
+                key={model.id}
+                onClick={() => setSelectedModel(model.id)}
+                className={`p-3 rounded-xl cursor-pointer transition-all duration-300 border ${
+                  selectedModel === model.id 
+                    ? isDarkMode 
+                      ? 'border-blue-500 shadow-lg shadow-blue-500/20' 
+                      : 'bg-blue-50 border-blue-500 shadow-lg shadow-blue-500/20'
+                    : isDarkMode 
+                      ? 'border-gray-700 hover:border-gray-600' 
+                      : 'bg-white border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium text-sm">{model.name}</span>
                 </div>
-              ))}
-            </div>
-            <div className={`text-sm opacity-60 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              Select a model above and start chatting...
-            </div>
+                <p className={`flex items-center gap-2 mb-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {model.description}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className={`text-sm opacity-60 ${
+            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>
+            Select a model above and start chatting...
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   const createNewMessage = () => {
     setMessages([]);       
@@ -672,6 +672,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
               ? 'bg-[rgba(40,44,52,0.95)] border border-gray-700 shadow-xl' 
               : 'bg-[rgba(255,255,255,0.95)] border border-gray-300 shadow-lg'
           }`}>
+
+            
             {/* Text Input */}
             <textarea
               ref={textareaRef}
@@ -709,7 +711,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
                 
                 {/* Model Dropdown */}
                 {isModelDropdownOpen && (
-                  <div className={`absolute bottom-full right-0 mb-3 w-64 origin-bottom-right rounded-xl shadow-xl py-2 z-20 backdrop-blur-md ${
+                  <div className={`absolute bottom-full right-0 mb-6 w-60 origin-bottom-right rounded-xl shadow-xl py-2 z-20 backdrop-blur-md ${
                     isDarkMode 
                       ? 'bg-[rgba(40,44,52,0.98)] border border-gray-700' 
                       : 'bg-[rgba(255,255,255,0.98)] border border-gray-200'
