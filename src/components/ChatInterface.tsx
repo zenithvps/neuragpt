@@ -684,6 +684,10 @@ const handleInputFocus = () => {
 </div>
 
   <div className="max-w-4xl mx-auto relative">
+  {/* Blob warna di belakang input untuk efek kaca */}
+  <div className="absolute -top-20 left-0 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl"></div>
+  <div className="absolute -top-10 right-0 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+
     {/* Enhanced Input Container - Ultra Clear Glass */}
     <div className={`relative rounded-2xl transition-all duration-300 ${
       input.trim() || isInputFocused 
