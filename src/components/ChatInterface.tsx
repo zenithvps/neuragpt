@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { ArrowUp, Copy, RotateCcw, Check } from 'lucide-react';
+import { ArrowUp, Copy, RotateCcw, Check, Sparkles, Mic, Paperclip, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -45,6 +45,7 @@ const MODELS = [
 const API_KEY = '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';
 
 const ChatInterface: React.FC<ChatInterfaceProps> = () => {
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -136,6 +137,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
     </div>
   );
 };
+
+const handleInputFocus = () => {
+    setIsInputFocused(true);
+  };
+
+  const handleInputBlur = () => {
+    setIsInputFocused(false);
+  };
 
   const createNewMessage = () => {
     setMessages([]);       
@@ -232,7 +241,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     adjustTextareaHeight();
   };
@@ -661,112 +670,213 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className={`border-t px-4 py-6 transition-colors duration-300 ${
-        isDarkMode ? 'border-gray-900' : 'border-gray-50'
-      }`}>
-        <div className="max-w-4xl mx-auto">
-          {/* Enhanced Input Box with Simplified Design */}
-          <div className={`flex items-center gap-4 rounded-full px-5 py-4 transition-all duration-300 backdrop-blur-sm ${
-            isDarkMode 
-              ? 'bg-[rgba(40,44,52,0.95)] border border-gray-700 shadow-xl' 
-              : 'bg-[rgba(255,255,255,0.95)] border border-gray-300 shadow-lg'
-          }`}>
+      
 
+      {/* Enhanced Input Area - Clear Glass Effect */}
+<div className={`border-t px-4 py-6 transition-colors duration-300 ${
+  isDarkMode ? 'border-gray-900/20' : 'border-gray-50/20'
+}`}>
+  
+  <div className="max-w-4xl mx-auto relative">
+    {/* Enhanced Input Container - Ultra Clear Glass */}
+    <div className={`relative rounded-2xl transition-all duration-300 ${
+      input.trim() || isInputFocused 
+        ? 'transform scale-[1.005]' 
+        : 'transform scale-100'
+    }`}>
             
-            {/* Text Input */}
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask anything"
-              className={`flex-1 border-none outline-none resize-none bg-transparent text-base leading-tight py-1 ${
-                isDarkMode 
-                  ? 'text-white placeholder-gray-400 placeholder-opacity-70' 
-                  : 'text-gray-800 placeholder-gray-500 placeholder-opacity-80'
-              }`}
-              rows={1}
-              disabled={isLoading}
-            />
+            {/* Ultra Clear Glassmorphism Background */}
+      <div className={`absolute inset-0 rounded-2xl backdrop-blur-md transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-white/[0.02] border border-white/[0.08]' 
+          : 'bg-white/[0.3] border border-white/[0.2]'
+      } ${
+        isInputFocused
+          ? isDarkMode 
+            ? 'bg-white/[0.05] border-white/[0.12] shadow-2xl shadow-blue-500/5' 
+            : 'bg-white/[0.4] border-white/[0.3] shadow-2xl shadow-blue-500/10'
+          : ''
+      }`}></div>
 
-            {/* Right Side Icons */}
-            <div className="flex items-center gap-3">
-              {/* Model Selection Button */}
-              <div className="relative" ref={modelDropdownRef}>
-                <button
-                  onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                  className={`flex items-center gap-2 p-2 rounded-lg transition-colors duration-300 focus:outline-none ${
-                    isDarkMode 
-                      ? 'hover:bg-gray-700 text-gray-400 hover:text-gray-200' 
-                      : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Select Model"
-                >
-                  <div className={`w-3 h-3 rounded-full ${MODELS.find(m => m.id === selectedModel)?.color}`}></div>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+           {/* Floating Label - Minimal Style */}
+      <label className={`absolute left-5 transition-all duration-300 pointer-events-none select-none font-medium z-20 ${
+        (isInputFocused || input.trim()) 
+          ? `top-3 text-xs ${
+              isDarkMode 
+                ? isInputFocused ? 'text-blue-400/90' : 'text-gray-400/80' 
+                : isInputFocused ? 'text-blue-600/90' : 'text-gray-500/80'
+            }`
+          : `top-1/2 transform -translate-y-1/2 text-sm ${
+              isDarkMode ? 'text-gray-500/60' : 'text-gray-400/70'
+            }`
+      }`}>
+        {(isInputFocused || input.trim()) 
+          ? 'Message' 
+          : 'Type your message here...'}
+      </label>
+
+            {/* Input Container */}
+      <div className="relative flex items-end gap-3 px-2 py-2">
+        {/* Textarea - Ultra Clean */}
+        <textarea
+          ref={textareaRef}
+          value={input}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          onKeyDown={handleKeyDown}
+          className={`flex-1 border-none outline-none resize-none bg-transparent text-sm leading-relaxed transition-all duration-300 ${
+            (isInputFocused || input.trim()) 
+              ? 'pt-8 pb-3' 
+              : 'pt-4 pb-3'
+          } px-3 ${
+            isDarkMode 
+              ? 'text-white/95 placeholder-transparent' 
+              : 'text-gray-800/95 placeholder-transparent'
+          }`}
+          rows={1}
+          disabled={isLoading}
+          style={{ minHeight: '44px' }}
+        />
+
+               {/* Action Buttons - Minimal & Clean */}
+        <div className="flex items-center gap-2 pb-1">
                 
-                {/* Model Dropdown */}
-                {isModelDropdownOpen && (
-                  <div className={`absolute bottom-full right-0 mb-6 w-60 origin-bottom-right rounded-xl shadow-xl py-2 z-20 backdrop-blur-md ${
-                    isDarkMode 
-                      ? 'bg-[rgba(40,44,52,0.98)] border border-gray-700' 
-                      : 'bg-[rgba(255,255,255,0.98)] border border-gray-200'
-                  }`}>
-                    {MODELS.map(model => (
-                      <div 
-                        key={model.id}
-                        onClick={() => {
-                          setSelectedModel(model.id);
-                          setIsModelDropdownOpen(false);
-                        }}
-                        className={`px-4 py-3 cursor-pointer transition-colors duration-200 ${
-                          selectedModel === model.id 
-                            ? isDarkMode 
-                              ? 'bg-gray-700' 
-                              : 'bg-blue-50' 
-                            : isDarkMode 
-                              ? 'hover:bg-gray-700' 
-                              : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${model.color}`}></div>
-                          <div>
-                            <div className="font-medium text-sm">{model.name}</div>
-                            <div className={`text-xs mt-1 ${
-                              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                            }`}>
-                              {model.description}
-                            </div>
-                          </div>
+                {/* Secondary Actions - Tambahan baru */}
+                <div className={`flex items-center gap-2 transition-all duration-300 ${
+                  input.trim() ? 'opacity-100' : 'opacity-60'
+                }`}>
+                </div>
+
+                {/* Model Selection - Clean Style */}
+          <div className="relative" ref={modelDropdownRef}>
+            <button
+              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              className={`flex items-center gap-1.5 p-2 rounded-lg transition-all duration-300 focus:outline-none hover:scale-105 ${
+                isDarkMode 
+                  ? 'hover:bg-white/10 text-gray-400/70 hover:text-gray-300/90' 
+                  : 'hover:bg-black/5 text-gray-500/70 hover:text-gray-700/90'
+              }`}
+              title="Select Model"
+            >
+              <div className={`w-2.5 h-2.5 rounded-full ${MODELS.find(m => m.id === selectedModel)?.color}`}></div>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+                  
+                   {/* Ultra Clear Model Dropdown */}
+            {isModelDropdownOpen && (
+              <div className={`absolute bottom-full right-0 mb-3 w-64 origin-bottom-right rounded-xl shadow-2xl py-2 z-30 backdrop-blur-xl transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-black/40 border border-white/[0.08]' 
+                  : 'bg-white/60 border border-black/[0.05]'
+              }`}>
+                <div className={`px-3 py-1.5 text-xs font-medium ${
+                  isDarkMode ? 'text-gray-400/80' : 'text-gray-500/80'
+                }`}>
+                  AI Models
+                </div>
+                {MODELS.map(model => (
+                  <div 
+                    key={model.id}
+                    onClick={() => {
+                      setSelectedModel(model.id);
+                      setIsModelDropdownOpen(false);
+                    }}
+                    className={`mx-1 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 ${
+                      selectedModel === model.id 
+                        ? isDarkMode 
+                          ? 'bg-blue-500/10 border border-blue-400/20' 
+                          : 'bg-blue-50/80 border border-blue-200/50' 
+                        : isDarkMode 
+                          ? 'hover:bg-white/[0.03]' 
+                          : 'hover:bg-black/[0.02]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${model.color}`}></div>
+                      <div className="flex-1">
+                        <div className="font-medium text-xs">{model.name}</div>
+                        <div className={`text-xs mt-0.5 ${
+                          isDarkMode ? 'text-gray-400/60' : 'text-gray-500/60'
+                        }`}>
+                          {model.description}
                         </div>
                       </div>
-                    ))}
+                      {selectedModel === model.id && (
+                        <div className={`${
+                          isDarkMode ? 'text-blue-400/80' : 'text-blue-500/80'
+                        }`}>
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
+            )}
+          </div>
 
-              {/* Send Button (when there's text) */}
-              {input.trim() && (
-                <button
-                  onClick={() => sendMessage()}
-                  disabled={isLoading}
-                  className={`p-2 rounded-full transition-all duration-300 ${
-                    isLoading
-                      ? isDarkMode
-                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                        : 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-500 text-white hover:shadow-lg transform hover:scale-105'
-                  }`}
-                >
-                  <ArrowUp className="w-4 h-4" />
-                </button>
+                {/* Send Button - Clean Gradient */}
+          {input.trim() && (
+            <button
+              onClick={() => sendMessage()}
+              disabled={isLoading}
+              className={`p-2.5 rounded-lg transition-all duration-300 ${
+                isLoading
+                  ? isDarkMode
+                    ? 'bg-gray-700/50 text-gray-500/50 cursor-not-allowed'
+                    : 'bg-gray-300/50 text-gray-400/50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+              }`}
+            >
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                <Send className="w-4 h-4" />
               )}
-            </div>
+            </button>
+          )}
+        </div>
+      </div>
+
+             {/* Character Counter - Subtle */}
+      {input && (
+        <div className={`absolute bottom-2 left-5 text-xs transition-opacity duration-300 ${
+          isDarkMode ? 'text-gray-500/50' : 'text-gray-400/60'
+        }`}>
+          {input.length}
+        </div>
+      )}
+
+            {/* Focus Glow Effect */}
+            {isInputFocused && (
+              <div className={`absolute -inset-0.5 rounded-2xl opacity-75 blur-sm transition-opacity duration-300 -z-10 ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20' 
+                  : 'bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20'
+              }`}></div>
+            )}
+          </div>
+
+          {/* Minimal Quick Actions */}
+    <div className="flex items-center justify-center gap-3 mt-3 opacity-50 hover:opacity-80 transition-opacity duration-300">
+      <button 
+        onClick={() => setInput('')}
+        className={`text-xs px-2.5 py-1 rounded-md transition-all duration-300 hover:scale-105 ${
+          isDarkMode 
+            ? 'hover:bg-white/5 text-gray-500/70 hover:text-gray-400/90' 
+            : 'hover:bg-black/5 text-gray-400/70 hover:text-gray-600/90'
+        }`}
+      >
+        Clear
+      </button>
+      <div className={`text-xs ${isDarkMode ? 'text-gray-600/50' : 'text-gray-400/60'}`}>
+        Press Enter to send • Shift + Enter for new line
+      </div>
           </div>
         </div>
       </div>
