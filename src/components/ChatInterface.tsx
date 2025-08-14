@@ -563,7 +563,7 @@ const handleInputFocus = () => {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif'
     }}>
       {/* Header */}
-      <header className={`border-b px-4 py-3 shadow-sm transition-colors duration-300 ${
+      <header className={`sticky top-0 z-50 border-b px-4 py-3 shadow-sm transition-colors duration-300 ${
         isDarkMode ? 'bg-[rgb(15_15_15)] border-gray-800' : 'bg-white border-gray-200'
       }`}>
         <div className="flex items-center justify-between max-w-6xl mx-auto">
@@ -677,6 +677,12 @@ const handleInputFocus = () => {
   isDarkMode ? 'border-gray-900/20' : 'border-gray-50/20'
 }`}>
   
+  {/* Background blobs for glassmorphism */}
+<div className="absolute inset-0 pointer-events-none overflow-hidden">
+  <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+  <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"></div>
+</div>
+
   <div className="max-w-4xl mx-auto relative">
     {/* Enhanced Input Container - Ultra Clear Glass */}
     <div className={`relative rounded-2xl transition-all duration-300 ${
@@ -685,18 +691,20 @@ const handleInputFocus = () => {
         : 'transform scale-100'
     }`}>
             
-            {/* Ultra Clear Glassmorphism Background */}
-      <div className={`absolute inset-0 rounded-2xl backdrop-blur-md transition-all duration-300 ${
-        isDarkMode 
-          ? 'bg-white/[0.02] border border-white/[0.08]' 
-          : 'bg-white/[0.3] border border-white/[0.2]'
-      } ${
-        isInputFocused
-          ? isDarkMode 
-            ? 'bg-white/[0.05] border-white/[0.12] shadow-2xl shadow-blue-500/5' 
-            : 'bg-white/[0.4] border-white/[0.3] shadow-2xl shadow-blue-500/10'
-          : ''
-      }`}></div>
+            <div className={`absolute inset-0 rounded-2xl backdrop-blur-xl transition-all duration-300 ${
+  isDarkMode 
+    ? 'bg-transparent border border-white/10' 
+    : 'bg-white/10 border border-black/10'
+} ${
+  isInputFocused
+    ? isDarkMode 
+      ? 'bg-white/5 border-blue-400/30 shadow-xl shadow-blue-500/10' 
+      : 'bg-white/20 border-blue-500/30 shadow-xl shadow-blue-500/20'
+    : ''
+}`}></div>
+
+
+
 
            {/* Floating Label - Minimal Style */}
       <label className={`absolute left-5 transition-all duration-300 pointer-events-none select-none font-medium z-20 ${
@@ -712,7 +720,7 @@ const handleInputFocus = () => {
       }`}>
         {(isInputFocused || input.trim()) 
           ? 'Message' 
-          : 'Type your message here...'}
+          : 'Ask Anything ...'}
       </label>
 
             {/* Input Container */}
@@ -822,31 +830,31 @@ const handleInputFocus = () => {
 
                 {/* Send Button - Clean Gradient */}
           {input.trim() && (
-            <button
-              onClick={() => sendMessage()}
-              disabled={isLoading}
-              className={`p-2.5 rounded-lg transition-all duration-300 ${
-                isLoading
-                  ? isDarkMode
-                    ? 'bg-gray-700/50 text-gray-500/50 cursor-not-allowed'
-                    : 'bg-gray-300/50 text-gray-400/50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
-              }`}
-            >
-              {isLoading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-            </button>
-          )}
+  <button
+    onClick={() => sendMessage()}
+    disabled={isLoading}
+    className={`p-3 rounded-full transition-all duration-300 ${
+      isLoading
+        ? isDarkMode
+          ? 'bg-gray-700/50 text-gray-500/50 cursor-not-allowed'
+          : 'bg-gray-300/50 text-gray-400/50 cursor-not-allowed'
+        : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+    }`}
+  >
+    {isLoading ? (
+      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+    ) : (
+      <ArrowUp className="w-4 h-4" />
+    )}
+  </button>
+)}
         </div>
       </div>
 
              {/* Character Counter - Subtle */}
       {input && (
         <div className={`absolute bottom-2 left-5 text-xs transition-opacity duration-300 ${
-          isDarkMode ? 'text-gray-500/50' : 'text-gray-400/60'
+          isDarkMode ? 'text-gray-400/50' : 'text-gray-400/60'
         }`}>
           {input.length}
         </div>
