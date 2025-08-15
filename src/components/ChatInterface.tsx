@@ -91,19 +91,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   }, []);
 
   const WelcomeArea = () => {
-  return (
-    <div className="flex flex-col items-center justify-center h-full py-12 px-4 text-center">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent mb-4">
-            Hello, I'm Neura
-          </h1>
+    return (
+      <div className="relative flex flex-col items-center justify-center h-full box-border px-4 py-12 text-center">
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute left-1/2 top-20 -translate-x-1/2 w-72 h-72 rounded-full bg-blue-500/15 blur-3xl"></div>
+          <div className="absolute right-10 bottom-10 w-64 h-64 rounded-full bg-purple-500/15 blur-3xl"></div>
         </div>
-        <div className="p-1 rounded-2xl backdrop-blur-sm border-gray-300">
-          <p className="text-xl font-semibold mb-4">
-            Ask me anything, I'm here to help
+        <div className="max-w-2xl mx-auto">
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs mb-3 ${
+            isDarkMode ? 'bg-white/5 text-gray-300' : 'bg-black/5 text-gray-700'
+          }`}>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Welcome to Neura</span>
+          </div>
+          <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+            Your AI copilot
+          </h1>
+          <p className={`mt-3 text-base ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Ask anything. Get answers, code, and ideas instantly.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
             {MODELS.map((model) => (
               <div 
                 key={model.id}
@@ -121,24 +128,47 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium text-sm">{model.name}</span>
                 </div>
-                <p className={`flex items-center gap-2 mb-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   {model.description}
                 </p>
               </div>
             ))}
           </div>
-          <div className={`text-sm opacity-60 ${
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {[
+              'Summarize this article',
+              'Write a JavaScript function',
+              'Explain this error message',
+              'Brainstorm 3 app ideas'
+            ].map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => {
+                  setInput(suggestion);
+                  requestAnimationFrame(() => textareaRef.current?.focus());
+                }}
+                className={`text-xs px-3 py-1.5 rounded-full transition-all duration-200 ${
+                  isDarkMode
+                    ? 'bg-white/5 hover:bg-white/10 text-gray-300'
+                    : 'bg-black/5 hover:bg-black/10 text-gray-700'
+                }`}
+                title={suggestion}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+          <div className={`mt-4 text-sm opacity-70 ${
             isDarkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>
-            Select a model above and start chatting...
+            Select a model, pick a suggestion, or start typing below.
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-const handleInputFocus = () => {
+  const handleInputFocus = () => {
     setIsInputFocused(true);
   };
 
@@ -597,7 +627,7 @@ const handleInputFocus = () => {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
+      <div className="flex-1 overflow-y-auto overscroll-contain" onScroll={handleScroll}>
         {isFirstLoad && messages.length <= 1 ? (
           <WelcomeArea />
         ) : (
@@ -665,9 +695,9 @@ const handleInputFocus = () => {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       
