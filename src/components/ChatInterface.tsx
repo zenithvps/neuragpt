@@ -21,24 +21,6 @@ const MODELS = [
     name: 'Super Neura',
     description: 'Super fast response and super detail information',
     color: 'bg-blue-600',
-  },
-  { 
-    id: 'moonshotai/kimi-k2:free', 
-    name: 'Neura Code',
-    description: 'Code and Math logic solutions',
-    color: 'bg-cyan-500',
-  },
-  { 
-    id: 'z-ai/glm-4.5-air:free', 
-    name: 'Neura Air',
-    description: 'Very efficient model for general and daily tasks.',
-    color: 'bg-emerald-500',
-  },
-  { 
-    id: 'qwen/qwen3-235b-a22b:free', 
-    name: 'Neura Thinking',
-    description: 'Advanced searching and thinking for complex reasoning',
-    color: 'bg-lime-500',
   }
 ];
 
@@ -133,32 +115,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = () => {
             Ask anything. Get answers, code, and ideas instantly.
           </p>
           
-          {/* Enhanced Mobile-Responsive Model Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 sm:gap-3 mt-6 max-w-full">
-            {MODELS.map((model) => (
-              <div 
-                key={model.id}
-                onClick={() => setSelectedModel(model.id)}
-                className={`p-2 sm:p-4 rounded-lg sm:rounded-xl border backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-pointer text-left ${
-                selectedModel === model.id
-                    ? isDarkMode 
-                      ? 'border-blue-500 shadow-lg shadow-blue-500/20 bg-blue-500/5' 
-                      : 'bg-blue-50/80 border-blue-500 shadow-lg shadow-blue-500/20'
-                    : isDarkMode 
-                      ? 'border-gray-700 hover:border-gray-600 bg-white/5' 
-                      : 'bg-white/60 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${model.color}`}></div>
-                  <span className="font-bold text-xs sm:text-sm">{model.name}</span>
-                </div>
-                <p className={`text-xs sm:text-xs leading-tight ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {model.description}
-                </p>
-              </div>
-            ))}
-          </div>
           
           {/* Mobile-Responsive Quick Suggestions */}
           <div className="mt-6 flex flex-wrap justify-center gap-1 sm:gap-2">
