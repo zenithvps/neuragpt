@@ -24,7 +24,7 @@ const MODELS = [
   }
 ];
 
-const API_KEY = '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';
+const API_KEY = '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';
 
 const ChatInterface: React.FC<ChatInterfaceProps> = () => {
   const [isInputFocused, setIsInputFocused] = useState(false);
